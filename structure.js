@@ -2,6 +2,8 @@
 const REGISTERFORM = $("#registerForm");
 
 const LOGINFORM = $("#loginForm");
+// on fait apl a la foction getUserList pour afficher l a listedes users
+getUserList();
 // ECOUTER LE CLICK
 REGISTERFORM.on("submit", (e) =>{
     // empeche le recharge automatique du forlmulaire
@@ -82,11 +84,11 @@ function login(pseudo, password, action) {
         // silya la promesse
         .then(response => {
             response.json()
-                .then(data => {
-                    console.log(data);
-                    // si on veut recupere l'identifiant et le nom de l'utilisateur qui se connect
-                    localStorage.setItem("iduser", data.data.id_user);
-                    localStorage.setItem("firstname", data.data.firstname);
+                .then(donnee => {
+                    console.log(donnee);  
+                    // on stock dans localStorage
+                    localStorage.setItem("iduser", donnee.userInfo.id_user);  //iduser cest la clé de setItem on le nomme comme on veut, userInfo il vient de api function connexion
+                    localStorage.setItem("firstname", donnee.userInfo.firstname);
                     // rediriger vers
                     window.location.href("")
                 })
@@ -96,4 +98,82 @@ function login(pseudo, password, action) {
         })
         // en cas ou ilya pas de promess
         .catch(error => console.log("ilya une erreur"));
+}
+
+// fonction pour obtenir la liste des utilisateurs :
+function getUserList() {
+    fetch("http://localhost/api_backend/getuserlist/")
+        .then((response) => {
+            response
+                .json()
+                .then((data) => {
+                    // console.log(data);
+                    // appel de printUsers data.users ilya data qui est just en haut .then(data)et users vient de la fonction getlist depuis api, fonction,  "users"=>$listeUsers qui renferme la liste des utilisateur
+                    printUsers(data.users)
+                })
+                .catch((error) => console.log(error));
+        })
+        .catch((error) => console.log(error));
+}
+
+
+// function pour afficher la liste de users
+function printUsers(listUser) {
+    listUser.forEach(element => {
+        // creer une balise p en lui ajoutant le prenom de l'utilisateur comme texte
+        // let p = $("p").append(element.firstname);
+        let p = document.createElement("p");
+        p.textContent = element.firstname;
+        // ajouter un identifant a chaque paragraph correspondant a l'identifiant de chak utilisateur
+        p.id = element.id_user
+        // on veut creer le click sur chak p
+        p.addEventListener("click", () => {
+            getListMessage(localStorage.getItem("iduser"), p.id);
+        })
+        // on ajoute le paragraphe comme enfant de la div avec la class user_list
+        $("#user_list").append(p);
+    });
+}
+
+
+// fonctionn pour la liste des msg des utilisateur
+
+function getListMessage(expeditor, receiver) {
+
+    
+    fetch("http://localhost/api_backend/geListMessage/" + expeditor + "/" + receiver)
+        .then((response) => {
+            response.json()
+                .then((data) => {
+                    // traitement
+                    printMessages(data.listMessage); // listMessage viens de api fonction getlistmessage
+                    // console.log(data);
+                })
+                .catch((error) => console.log(error));
+        })
+        .catch((error) => console.log(error));
+
+}
+
+// fonction pour afficher la lister des messages en deux ligne
+function printMessages(listMessage){
+    document.getElementById("discution").innerHTML = "";
+    listMessage.forEach(element => {
+        // on affiche le msg de lexpediteur a droite reiver à gauche
+        // creer une div et un paragraphe
+        let div = document.createElement("div");
+        let p = document.createElement("p");
+        // ajouter le paragr a la div
+        div.append(p);
+        // on affect du text au paragrap
+        p.textContent = element.message;
+        // si celui qui ecrit le message est le meme stocker dans localStorage, cest l'expediteur
+        if (element.expeditor_id == localStorage.getItem("idUser")) {
+            div.className = "expediteur";
+            
+        } else {
+            div.className = "recepteur"
+        }
+        $("#discution").append(div);
+    })
 }
