@@ -22,14 +22,14 @@
     flex-direction: column;
     justify-content: space-between;
     padding: 5px 15px;
-        border: solid 2px black;
+    border: solid 2px black;
 
 }
 p{
   /* padding: 0; */
     margin: 3px; 
-    background-color: rgb(51, 51, 131);
-    color: white;
+    /* background-color: rgb(51, 51, 131); */
+    color: black
    
 }
 #message{
@@ -39,10 +39,27 @@ p{
 }
 .expediteur{
     width: 200px;
-    direction: ltr;
+    border: black 1px solid;
+    background-color: rgb(171, 187, 23);
+    /* margin-left: 150px; */
+    margin: 5px 0 5px 150px;
+    border-radius: 10px;
 }
 .recepteur{
-    width: 200px;
-    direction: ltr;
+ width: 200px;
+    border: black 1px solid;
+    background-color: rgba(171, 187, 23, 0.384);
+    margin: 5px  5px ;
+     border-radius: 10px;
 
+    
+
+}
+
+h1{
+    width: 50%;
+    margin: auto;
+    color: red;
+    margin-right: 150px;
+    padding: 7px;
 }

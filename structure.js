@@ -2,6 +2,10 @@
 const REGISTERFORM = $("#registerForm");
 
 const LOGINFORM = $("#loginForm");
+// on le prend depuis le formulaire id du form pour envoyer le message
+const MESSAGEFORM = $("#messageForm");
+// identifiant de l'interolucteur
+let interlocutor = null;
 // on fait apl a la foction getUserList pour afficher l a listedes users
 getUserList();
 // ECOUTER LE CLICK
@@ -63,7 +67,23 @@ LOGINFORM.on("submit", (e) => {
     let action = $("#action").val();
     // APL A NOTRE FONCTION
     //  dans le bouton id= action dou ilya action ausssi comm paramettre
+    // apler la fonction creee ci-dessous
     login(pseudo, password, action)
+})
+
+// au click sur le bouton envoyer message
+MESSAGEFORM.on('submit', (e) => {
+    e.preventDefault();
+    // recuperation du message dpuis son id dans le formulaire
+    let message = $("#message").val();
+    // action cest le bouton  avk id action dans index
+    let action = $("#action").val();
+    // expeditor
+    let expeditor = localStorage.getItem("iduser");
+    let receiver = interlocutor;
+    // apll de la fonction sendMessage
+
+    sendMessage(expeditor, receiver, message, action);
 })
 // fonction login
 function login(pseudo, password, action) {
@@ -129,6 +149,8 @@ function printUsers(listUser) {
         // on veut creer le click sur chak p
         p.addEventListener("click", () => {
             getListMessage(localStorage.getItem("iduser"), p.id);
+            // l'identifiant de l'interlocuteur égale à l'identifiant de lutilisateur qu'on a cliqué
+            interlocutor = p.id
         })
         // on ajoute le paragraphe comme enfant de la div avec la class user_list
         $("#user_list").append(p);
@@ -168,7 +190,7 @@ function printMessages(listMessage){
         // on affect du text au paragrap
         p.textContent = element.message;
         // si celui qui ecrit le message est le meme stocker dans localStorage, cest l'expediteur
-        if (element.expeditor_id == localStorage.getItem("idUser")) {
+        if (element.expeditor_id == localStorage.getItem("iduser")) {
             div.className = "expediteur";
             
         } else {
@@ -176,4 +198,36 @@ function printMessages(listMessage){
         }
         $("#discution").append(div);
     })
+}
+
+// fonction pour envoyer les messsage
+
+function sendMessage(expeditor, receiver, message, action) {
+    
+    // declarer une variable
+    let data = {
+        expeditor: expeditor,
+        receiver: receiver,
+        message: message,
+        action: action
+    }
+
+    let dataOption = {
+        method: "post",
+        body: JSON.stringify(data)
+    };
+// envoyer la request vert api
+
+fetch("http://localhost/api_backend/", dataOption)
+    .then((response) => {
+        response.json()
+            .then(data => {
+                // console.log(data);
+                getListMessage(expeditor, receiver);
+                $("#message").val("").select();
+            })
+            .catch((error) => console.log(error));
+    
+    }).catch((error) => console.log(error));
+
 }
